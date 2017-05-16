@@ -2,8 +2,28 @@
 <html>
 	<head>
 		<title>Image Normalizer</title>
+		<style>
+			#hidden {
+				display: none;
+			}
+			#palette-preview {
+				max-height: 200px;
+			}
+		</style>
+		<script src="jquery.min.js"></script>
+		<script src="jquery.getimagedata.min.js"></script>
+		<script src="module_1.js"></script>
 	</head>
 	<body>
-		<p>test</p>
+		<div id="button-container">
+			<button id="clickable">test</button>
+			<p id="hidden">test too</p>
+		</div>
+		<div>
+			<input id="palette-upload" type="file" multiple>
+		</div>
+		<div id="palette-preview">
+			
+		</div>
 	</body>
 </html>
