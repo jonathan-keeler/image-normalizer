@@ -1,32 +1,11 @@
 (function () {
 	$(document).ready(function() {
-		var urls = []; // holds file URLs
+		var urls = []; // holds palette file URLs
 		
 		$("#clickable").click(function() {
 			alert("Text: " + $("#hidden").text());
 		});
 		$("#palette-upload").change(function() {
-			/*
-			urls.length = 0; // clear urls on upload
-			console.log(this.files);
-			var urlPromise = getURLs(this.files);
-			urlPromise.done(function(data) { // data resolved
-				console.log(data);
-				console.log("TEST data");
-				console.log(urls);
-				console.log(urls[0]);
-			});
-			urlPromise.fail(function(ex) {
-				alert("problem occured: " + ex);
-			});
-			*/
-			// call getURLs and when finished, run the enclosed code
-			//getURLs(this.files).promise().done(function() {
-			//	console.log(fileURLs.length);
-			//	for(var i = 0; i < fileURLs.length; i++) {
-			//		console.log(fileURLs[i]);
-			//	}
-			//});
 			urls.length = 0;
 			console.log(this.files);
 			var filesLoaded = $.Deferred();
@@ -34,6 +13,8 @@
 			filesLoaded.done(function(data) {
 				// urls have been successfully loaded, okay to continue
 				console.log("URL length: " + urls.length);
+				showPaletteImages($("#palette-preview")); // show all uploaded images in the preview
+				$("#palette-preview").html("<img src='"+urls[0]+"' height='200' />");
 			});
 			filesLoaded.fail(function(ex) {
 				alert("problem loading files: " + ex);
@@ -49,7 +30,7 @@
 					loadFiles(fileArray, fileIndex + 1, allLoaded);
 				} else {
 					console.log("All files loaded, resolve() call upcoming");
-					allLoaded.resolve(fileIndex);
+					allLoaded.resolve(fileIndex); // resolve deferred once all files are loaded
 				}
 			});
 		}
@@ -70,29 +51,22 @@
 			
 			return deferred.promise();
 		}
-		function getURLs(fileArray) {
-			var deferred = $.Deferred();
-			
-			urls = []; // make new empty array
-			
-			// weirdness: a unique FileReader has to be declared with .onload defined for every image
-			for(var i = 0, f; f = fileArray[i]; i++) {
-				var reader = new FileReader();
-				
-				// callled by readAsDataURL();
-				// function enclosure/generator is used due to declaration inside a loop problem
-				reader.onload = (function(event) {
-					return function(e) {
-						// append URL to array
-						console.log("TEST");
-						urls.push(e.target.result);
-					};
-				})(f);
-				reader.readAsDataURL(fileArray[i]); // run the above function for each file
-				if(fileArray[i+1] === undefined)
-					deferred.resolve(i+1);
+		function showPaletteImages(htmlElement) {
+			//for(var i = 0; i < urls.length; i++) {
+			//	imageHtml = imageHtml.concat('<img src="' + urls[i] + '" height="200" />');
+			//	if(i < urls.length - 1)
+			//		imageHtml = imageHtml.concat('\n');
+			//}
+			for(var i = 0; i < urls.length; i++) {
+				// insert all images into the preview
+				$("<img/>", {
+					id: 'palette-image',
+					src: urls[i],
+					height: '200'
+				}).appendTo("#palette-preview");
 			}
-			return deferred.promise();
+			console.log(imageHtml);
+			htmlElement.html(imageHtml);
 		}
 		function renderPaletteList(fileArray) {
 			var reader = new FileReader();
