@@ -14,7 +14,6 @@
 				// urls have been successfully loaded, okay to continue
 				console.log("URL length: " + urls.length);
 				showPaletteImages($("#palette-preview")); // show all uploaded images in the preview
-				$("#palette-preview").html("<img src='"+urls[0]+"' height='200' />");
 			});
 			filesLoaded.fail(function(ex) {
 				alert("problem loading files: " + ex);
@@ -57,6 +56,7 @@
 			//	if(i < urls.length - 1)
 			//		imageHtml = imageHtml.concat('\n');
 			//}
+			$("#palette-preview").empty();
 			for(var i = 0; i < urls.length; i++) {
 				// insert all images into the preview
 				$("<img/>", {
@@ -68,21 +68,5 @@
 			console.log(imageHtml);
 			htmlElement.html(imageHtml);
 		}
-		function renderPaletteList(fileArray) {
-			var reader = new FileReader();
-			
-			var paletteHtml = "";
-			
-			reader.onload = function(event) {
-				the_url = event.target.result;
-				$("#palette-preview").html("<img src='" + the_url + "' height='200' />");
-			};
-			
-			// trigger the onload function above
-			reader.readAsDataURL(file);
-			
-			// write in the html 
-			$("#palette-preview").html(paletteHtml);
-		};
 	});
 })();
