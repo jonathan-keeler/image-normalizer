@@ -2,27 +2,37 @@
 <html>
 	<head>
 		<title>Image Normalizer</title>
+		<link rel="stylesheet" type="text/css" href="bootstrap.min.css" />
 		<style>
 			body {
 				/* Background from Subtle Patterns */
 				background-image: url("sp_pixelweave.png");
 				background-repeat: repeat;
 			}
+			.colour-preview {
+				float: left;
+				width: 20px;
+				height: 20px;
+				margin: 5px;
+				border: 1px solid rgba(0, 0, 0, 2);
+			}
 			#hidden {
 				display: none;
 			}
 			#palette-preview {
-				max-height: 200px;
+				margin-left: 5px;
+				margin-top: 5px;
 			}
 			#palette-image {
 				margin-right: 5px;
+				margin-bottom: 5px;
 				box-shadow: 2px 2px 5px;
 			}
 		</style>
 		<script src="jquery.min.js"></script>
 		<script src="jquery.getimagedata.min.js"></script>
 		<script src="jszip.min.js"></script>
-		<script src="imageloader.js"></script>
+		<script src="imagedata-processing.js"></script>
 		<script src="module_1.js"></script>
 	</head>
 	<body>
@@ -33,9 +43,12 @@
 		<div>
 			<input id="palette-upload" type="file" multiple>
 		</div>
-		<div id="palette-preview">
-			
-		</div>
+		<div id="palette-preview"></div>
+		<div id="colours-preview"></div>
+		<h1 id="too-many-colours-header" style="display: none;">
+			<strong>Too many colours were found in the uploaded images.</strong></br>
+			<small>All colours are currently stored, but only 500 are displayed here.</small>
+		</h1>
 		<div id="canvas-div">
 			<canvas id="processing-canvas"></canvas>
 		</div>
