@@ -1,6 +1,7 @@
 (function () {
 	$(document).ready(function() {
 		var palette_urls = []; // holds palette file URLs
+		var palette_data = []; // holds palette imagedata
 		var alter_urls = []; // holds image URLs to be normalized
 		
 		$("#clickable").click(function() {
@@ -8,12 +9,15 @@
 		});
 		$("#palette-upload").change(function() {
 			palette_urls.length = 0;
+			palette_data.length = 0;
 			console.log(this.files);
 			var filesLoaded = $.Deferred();
-			loadFiles(this.files, 0, filesLoaded, palette_urls); // hopefully resolves filesLoaded
+			loadFiles(this.files, palette_urls, palette_data, 0, filesLoaded); // hopefully resolves filesLoaded
 			filesLoaded.done(function(data) {
 				// urls have been successfully loaded, okay to continue
 				console.log("palette urls length: " + palette_urls.length);
+				console.log("palette data length: " + palette_data.length);
+				console.log(palette_data);
 				showPaletteImages($("#palette-preview")); // show all uploaded images in the preview
 				var imageDataLoaded = $.Deferred();
 			});
@@ -22,12 +26,12 @@
 			});
 		});
 		// recursive function that loads all files with a promise attached (allLoaded)
-		function loadFiles(fileArray, fileIndex, allLoaded, urlArray) {
-			var currentLoaded = getURLandPush(fileArray[fileIndex], urlArray);
+		function loadFiles(fileArray, urlArray, dataArray, fileIndex, allLoaded) {
+			var currentLoaded = getURLandPush(fileArray[fileIndex], urlArray, dataArray);
 			currentLoaded.done(function() {
 				// recursively iterate through the files
 				if(fileArray[fileIndex + 1] !== undefined) {
-					loadFiles(fileArray, fileIndex + 1, allLoaded, urlArray);
+					loadFiles(fileArray, urlArray, dataArray, fileIndex + 1, allLoaded);
 				} else {
 					console.log("All files loaded, resolve() call upcoming");
 					allLoaded.resolve(fileIndex); // resolve deferred once all files are loaded
@@ -35,7 +39,7 @@
 			});
 		}
 		// get dataurl from uploaded file and push it to the given array
-		function getURLandPush(file, storageArray) {
+		function getURLandPush(file, urlArray, dataArray) {
 			var deferred = $.Deferred();
 			
 			var reader = new FileReader();
@@ -44,8 +48,15 @@
 				return function(e) {
 					// append URL to array
 					console.log(e.target.result);
-					storageArray.push(e.target.result);
-					deferred.resolve();
+					urlArray.push(e.target.result);
+					
+					// convert URL to ImageData
+					var convertPromise = urlToData(e.target.result, dataArray);
+					convertPromise.done(function() {
+						// once URL has been properly converted, resolve the file as a whole
+						console.log("URL conversion resolved");
+						deferred.resolve();
+					});
 				};
 			})(file);
 			reader.readAsDataURL(file);
@@ -63,13 +74,26 @@
 				}).appendTo("#palette-preview");
 			}
 		}
-		function loadAllImageData(urlIndex, allLoaded) {
-			
-		}
 		function urlToData(url, storageArray) {
 			var deferred = $.Deferred();
 			
-			
+			var img = new Image();
+			img.src = url;
+			img.onload = function() {
+				// set up canvas and context
+				var canvas = $("#processing-canvas").get(0);
+				var ctx = canvas.getContext("2d");
+				canvas.width = img.width;
+				canvas.height = img.height;
+				
+				ctx.drawImage(img, 0, 0);
+				img.style.display = "none";
+				var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+				storageArray.push(imageData);
+				// clear canvas and resolve conversion promise
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				deferred.resolve();
+			};
 			
 			return deferred.promise();
 		}
